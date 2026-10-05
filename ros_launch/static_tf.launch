@@ -1,0 +1,42 @@
+<launch>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="ouster_top_frame_publisher"
+        args="0 0 0 -0.0032020896 0.83862830012 0 base_link ouster_top "/>
+        
+    <node pkg="tf2_ros" type="static_transform_publisher" name="ouster_top_ndt_frame_publisher"
+        args="0 0 0 -0.0032020896 0.83862830012 0 base_link_ndt ouster_top_ndt "/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="ouster_back_frame_publisher"
+        args="-8.1126 -0.016164 -8.9065 0.76892 0.0035431 -0.63931 -0.0057646 ouster_top ouster_back "/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="ouster_left_frame_publisher"
+        args="-1.6762 -0.071303 -2.0143 0.73328 -0.010823 -0.67981 -0.0063924 ouster_right ouster_left"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="ouster_right_frame_publisher"
+        args="-3.7306 -1.4347 -4.5369 0.53224 0.0081048 -0.45749 0.71229 ouster_top ouster_right"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="falcon_front_frame_publisher"
+        args="0.049984 -0.019326 -0.17752 0.0030873 -0.36861 0.0067397 	 ouster_top falcon_front"/>     
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="falcon_ndt_frame_publisher"
+        args="0.049984 -0.019326 -0.17752 0.0030873 -0.36861 0.0067397 0.92956 ouster_top_ndt falcon_front_ndt"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="falcon_back_frame_publisher"
+        args="-7.9823 -0.010935 -9.001 -0.43691 -0.0062962 0.89947 -0.0051146 ouster_top falcon_back"/>        
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="gps_antenna_publisher"
+        args="-10.5 1.0 -1.25 0.0 0.0 0.0 base_link gps_antenna"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="imu_frame_publisher"
+        args="-10.5 0.0 -2.0 0.0 0.0 0.0 base_link imu"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="rear_wheel_publisher"
+        args="-8.65 0.0 -2.55 0.0 0.0 0.0 base_link rear_wheel"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="ground_plane_frame_publisher"
+        args="0.0 0.0 -3.0 0.0 0.0 0.0 base_link ground_plane "/>
+
+    <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="rtk_publisher"
+        args="-2.08 0.0 0.0 0.0 0.0 0.0  base_link rtk"/> -->
+
+
+</launch>

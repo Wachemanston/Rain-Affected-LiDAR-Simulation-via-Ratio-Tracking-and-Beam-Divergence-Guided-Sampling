@@ -1,0 +1,77 @@
+<launch>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="gmsl_120_f_to_ouster_top" 
+        args="0.0787804 -0.0775618 -0.0681581 -0.374598 0.356071 -0.598599 0.61202 
+        ouster_top gmsl_120_f" />
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="gmsl_60_f_to_gmsl_120_f" 
+        args="-0.191908 -0.0104101 -0.0226562 0.0876617 0.0161187 0.00230402 0.996017 
+        gmsl_120_f gmsl_60_f" />
+
+    <!-- Chimei cameras -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="chimei_183_f_to_base_link"
+        args="0.0220833 0.000010414 2.835  -0.685 0.68614 -0.16675 0.17939
+        base_link chimei_183_f"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="chimei_183_lf_to_base_link"
+        args="-2.4732 1.415 2.765  0.97315 -0.0022242 -0.005341 -0.23009
+        base_link chimei_183_lf"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="chimei_183_lb_to_base_link"
+        args="-11.738 1.25 2.56  0.96782 -0.0081212 -0.0076509 -0.25141
+        base_link chimei_183_lb"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="chimei_183_b_to_base_link"
+        args="-12.128 -0.37001 2.9  0.62474 0.63035 -0.34424 -0.30637
+        base_link chimei_183_b"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="chimei_183_rf_to_base_link"
+        args="-2.6182 -1.135 2.76  0.00523 0.97006 -0.24275 -0.0047368
+        base_link chimei_183_rf"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="chimei_183_rb_to_base_link"
+        args="-11.728 -1.265 2.61  0.01584 0.9425 -0.33137 -0.040545
+        base_link chimei_183_rb"/>
+
+    <!-- Fake TF need to be calibrate -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="gmsl_60_slb_to_ouster_top"
+        args="0.0 0.0 0.0 0.0 0.0 0.0 1.0 
+        ouster_top gmsl_60_slb"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="gmsl_60_slf_to_ouster_top"
+        args="0.0 0.0 0.0 0.0 0.0 0.0 1.0 
+        ouster_top gmsl_60_slf"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="gmsl_60_srb_to_ouster_top"
+        args="0.0 0.0 0.0 0.0 0.0 0.0 1.0 
+        ouster_top gmsl_60_srb"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="gmsl_60_srf_to_ouster_top"
+        args="0.0 0.0 0.0 0.0 0.0 0.0 1.0 
+        ouster_top gmsl_60_srf"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="gmsl_120_b_to_ouster_top"
+        args="0.0 0.0 0.0 0.0 0.0 0.0 1.0 
+        ouster_top gmsl_120_b"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="gmsl_120_fl_to_ouster_top"
+        args="0.0 0.0 0.0 0.0 0.0 0.0 1.0 
+        ouster_top gmsl_120_fl"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="gmsl_120_fr_to_ouster_top"
+        args="0.0 0.0 0.0 0.0 0.0 0.0 1.0 
+        ouster_top gmsl_120_fr"/>
+        
+    <node pkg="tf2_ros" type="static_transform_publisher" name="ouster_top_to_chimei_110_f"
+      args="-0.0568033 0.306957 -0.289824 -1.5506 -0.00956 -0.6485 ouster_top chimei_110_f"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="ouster_top_to_chimei_30_f"
+      args="0.0396462 -0.327112 -0.153372 -1.50198 -0.02414 -0.65976 ouster_top chimei_30_f"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="ouster_top_to_chimei_30_b"
+        args="-8.07546 0.41215 -8.84436 1.57782 0.09076 -2.36685 ouster_top chimei_30_b"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="ouster_top_to_chimei_110_b"
+        args="-8.0203 -0.259635 -8.9746 1.4979 0.00401 -2.3180 ouster_top chimei_110_b"/>
+
+</launch>

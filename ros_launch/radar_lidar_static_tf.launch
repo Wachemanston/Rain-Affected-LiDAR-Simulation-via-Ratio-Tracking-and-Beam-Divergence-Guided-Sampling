@@ -1,0 +1,8 @@
+<launch>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="radar_front_frame_publisher"
+        args="1.92419 0.202138 -1.84219 0.006617 -0.743600 0.005537 ouster_top ars548_front"/> 
+        
+    <node pkg="tf2_ros" type="static_transform_publisher" name="radar_rear_frame_publisher"
+        args="-6.09947 -0.0605266 -10.6979 -3.12727 0.93541 -0.00500 ouster_top ars548_rear"/>
+        
+</launch>

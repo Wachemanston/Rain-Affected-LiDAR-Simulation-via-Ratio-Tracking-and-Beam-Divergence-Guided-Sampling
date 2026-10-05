@@ -1,0 +1,24 @@
+[project]
+name = "rals"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "ArrmenLee", email = "wachemanstonphoenix@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "av>=19.0.1",
+    "mcap-ros2-support>=0.5.7",
+    "pypcd4>=1.5.0",
+    "pyyaml>=6.0.3",
+    "scipy>=1.18.1",
+    "trimesh>=5.1.0",
+]
+
+[project.scripts]
+rals = "rals:main"
+
+[build-system]
+requires = ["uv_build>=0.12.21,<0.13.0"]
+build-backend = "uv_build"

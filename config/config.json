@@ -1,0 +1,21 @@
+{
+  "scene_inhomogeneous_test": {
+    "LiDAR": "VLP-32C"
+  },
+  "scene_fog40": {
+    "LiDAR": "OS0-128x1024",
+    "orig_pcds": "./blender_sim/artc_fog40"
+  },
+  "scene_fog80": {
+    "LiDAR": "OS0-128x1024",
+    "orig_pcds": "./blender_sim/artc_fog80"
+  },
+  "scene_rain100": {
+    "LiDAR": "OS0-128x1024",
+    "orig_pcds": "./blender_sim/artc_rain100"
+  },
+  "scene_rain60": {
+    "LiDAR": "OS0-128x1024",
+    "orig_pcds": "./blender_sim/artc_rain60"
+  }
+}

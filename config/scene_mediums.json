@@ -1,0 +1,55 @@
+{
+  "scene_inhomogeneous_test": [
+    {
+      "medium": "rain",
+      "center": [25, 0, 0],
+      "rain_rate": 20,
+      "size": [50, 10, 10],
+      "shape": "cuboid"
+    },
+    {
+      "medium": "rain",
+      "center": [75, 0, 0],
+      "rain_rate": 100,
+      "size": [50, 10, 10],
+      "shape": "cuboid"
+    }
+  ],
+  "scene_fog40": [
+    {
+      "medium": "fog",
+      "left": 0,
+      "right": 80,
+      "visibility": 40,
+      "shape":  "x-interval"
+    }
+  ],
+  "scene_fog80": [
+    {
+      "medium": "fog",
+      "left": 0,
+      "right": 80,
+      "visibility": 60,
+      "shape":  "x-interval"
+    }
+  ],
+  "scene_rain100": [
+    {
+      "medium": "rain",
+      "rain_rate": 100,
+      "left": 0,
+      "right": 80,
+      "shape": "x-interval"
+    }
+  ],
+  "scene_rain60": [
+    {
+      "medium": "rain",
+      "rain_rate": 60,
+      "left": 0,
+      "right": 80,
+      "shape": "x-interval"
+    }
+  ],
+  "scene_clear": []
+}

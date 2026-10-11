@@ -4,6 +4,7 @@ from typing import List
 import numpy as np
 from pypcd4 import PointCloud, Encoding
 
+from constants import AugmentedDataset
 from density_estimator import PCMQuerier
 import particle_attribute_querier as PAQ
 from lidar import LiDARParams
@@ -30,7 +31,7 @@ def process_pcds(pcd_dir: Path, save_dir: Path, particle_dir: Path) -> None:
         density_estimator.set_kernel_with_points(particles)
 
         augment_pc = process_pcd(pcd_path)
-        assert len(augment_pc.fields) == 6, augment_pc  # expected: x, y, z, intensity, channel, label
+        assert augment_pc.fields == AugmentedDataset.fields, augment_pc
         augment_pc.save(save_dir / f'augment_{i:04d}.pcd', encoding=Encoding.BINARY)
 
 

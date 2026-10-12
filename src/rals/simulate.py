@@ -47,12 +47,13 @@ def process_pcd(pcd_path: Path) -> PointCloud:
     ray_idx = np.arange(pc.points)[mask]
 
     x, y, z, intensity = points[:, 0], points[:, 1], points[:, 2], points[:, 3]
-    channel = points[:, 4].astype(np.uint8)
+    channels = points[:, 4].astype(np.uint8)
     distance = np.linalg.norm([x, y, z], axis=0)
     unit_dir = points[0:3] / distance.reshape(-1, 1)
+    i_adjusted = lidar_params.calibrate_intensity(i_orig=intensity, d_orig=distance, channels=channels)
 
     with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        tmp = {executor.submit(process_single_beam, rd, d, i, c, ud, _i): _i for _i, (rd, d, i, c, ud) in enumerate(zip(ray_idx, distance, intensity, channel, unit_dir))}
+        tmp = {executor.submit(process_single_beam, rd, d, i, c, ud, _i): _i for _i, (rd, d, i, c, ud) in enumerate(zip(ray_idx, distance, i_adjusted, channels, unit_dir))}
 
 
 def process_single_beam():

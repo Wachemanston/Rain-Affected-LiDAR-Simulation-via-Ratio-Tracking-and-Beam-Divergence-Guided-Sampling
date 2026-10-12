@@ -25,3 +25,4 @@ class DatasetParams(NamedTuple):
 
 
 AugmentedDataset = DatasetParams(fields=('x', 'y', 'z', 'intensity', 'channel', 'label'), types=(np.float32, np.float32, np.float32, np.uint8, np.float32, np.uint16, np.uint8, np.uint8))
+DefaultDataset = DatasetParams()

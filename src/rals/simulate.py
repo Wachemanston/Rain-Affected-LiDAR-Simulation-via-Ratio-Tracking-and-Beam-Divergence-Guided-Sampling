@@ -1,13 +1,16 @@
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 from typing import List
 
 import numpy as np
+from numpy.typing import NDArray
 from pypcd4 import PointCloud, Encoding
 
-from constants import AugmentedDataset
+from constants import AugmentedDataset, DefaultDataset, MAX_WORKERS
 from density_estimator import PCMQuerier
 import particle_attribute_querier as PAQ
 from lidar import LiDARParams
+from utils import reform_pc
 
 
 density_estimator = PCMQuerier()  # can replace PCMQuerier with NoOpKDE for tests
@@ -36,7 +39,30 @@ def process_pcds(pcd_dir: Path, save_dir: Path, particle_dir: Path) -> None:
 
 
 def process_pcd(pcd_path: Path) -> PointCloud:
+    pc = PointCloud.from_path(pcd_path)
+    pc = reform_pc(pc, DefaultDataset)
+    points = pc.numpy(DefaultDataset.fields)
+    mask = get_interesting_points(points)
+    points = points[mask]
+    ray_idx = np.arange(pc.points)[mask]
+
+    x, y, z, intensity = points[:, 0], points[:, 1], points[:, 2], points[:, 3]
+    channel = points[:, 4].astype(np.uint8)
+    distance = np.linalg.norm([x, y, z], axis=0)
+    unit_dir = points[0:3] / distance.reshape(-1, 1)
+
+    with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        tmp = {executor.submit(process_single_beam, rd, d, i, c, ud, _i): _i for _i, (rd, d, i, c, ud) in enumerate(zip(ray_idx, distance, intensity, channel, unit_dir))}
+
+
+def process_single_beam():
     pass
+
+
+def get_interesting_points(points: NDArray) -> NDArray:
+    """ filter points before ray-casting for a smaller test. """
+    """ ex: return points[: 0] > 0 """
+    return np.ones(len(points), dtype=bool)
 
 
 if __name__ == '__main__':

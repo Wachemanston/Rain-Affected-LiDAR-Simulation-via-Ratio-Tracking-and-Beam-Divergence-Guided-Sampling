@@ -11,6 +11,7 @@ from scipy.constants import speed_of_light as c
 from constants import AugmentedDataset, DefaultDataset, MAX_WORKERS, PI, RNG
 from density_estimator import PCMQuerier
 import particle_attribute_querier as PAQ
+from power_processor import PowerProcessParams
 from shared_memory import PerceptResShm, SharedMemoryMeta
 from lidar import LiDARParams
 import ray_info as ray_info_instance
@@ -19,6 +20,16 @@ from utils import reform_pc, uniformly_sample_points_in_sphere
 
 density_estimator = PCMQuerier()  # can replace PCMQuerier with NoOpKDE for tests
 ray_info_instance.set_export_func(export_if=lambda ray_idx, _: ray_idx <= 100)
+
+
+class RaySimParams(NamedTuple):
+    d_orig: float
+    i_adjusted: float
+    i_orig: float
+    max_intensity: float
+    ray_idx: int
+    unit_dir: NDArray
+    pp_params: PowerProcessParams
 
 
 class RaySimCommonParams(NamedTuple):
@@ -90,6 +101,23 @@ def process_pcd(pcd_path: Path, percept_res_shm: PerceptResShm, params: ProcessP
     unit_dir = points[0:3] / distance.reshape(-1, 1)
     i_adjusted = lidar_params.calibrate_intensity(i_orig=intensity, d_orig=distance, channels=channels)
     ch_max_intensity = lidar_params.get_channel_max_intensity(channels)
+
+    channel_infos = lidar_params.channel_infos
+    rs_params_list: List[RaySimParams] = []
+    for tpl in zip(ray_idx, distance, intensity, i_adjusted, channels, unit_dir, ch_max_intensity):
+        ri, d_orig, i_orig, i_ad, ch, ud, mi = tpl
+        pp_params = PowerProcessParams(channel=ch,
+                                       focal_offset=channel_infos[ch]['focal_offset'],
+                                       focal_slope=channel_infos[ch]['focal_slope'],
+                                       intensity_range=(0, 255))
+        rs_params_list.append(RaySimParams(
+            d_orig=d_orig,
+            i_adjusted=i_ad,
+            i_orig=i_orig,
+            max_intensity=mi,
+            ray_idx=ri,
+            unit_dir=ud,
+            pp_params=pp_params))
 
     percept_res_shm.reset_pulses_shm(ray_cnt=len(points), pulse_length=params.M_extended)
     percept_res_shm.reset_pc_shm(points=pc[:, :4])

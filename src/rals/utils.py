@@ -3,7 +3,7 @@ import numpy as np
 from pypcd4 import PointCloud
 from typing import List, Tuple, Union
 
-from constants import DatasetParams
+from constants import DatasetParams, RNG
 
 
 def calculate_execution_time(func):
@@ -59,3 +59,29 @@ def reform_pc(pc: PointCloud, dataset_params: DatasetParams) -> PointCloud:
         points[intensity_idx] *= dataset_params.intensity_multiplier
 
     return PointCloud.from_points(points, fields=dataset_params.fields, types=dataset_params.types)
+
+
+def uniformly_sample_points_in_sphere(r: float, n: int) -> NDArray:
+    phi = 2 * np.pi * RNG.uniform(0, 1, size=n)
+    costheta = 2 * RNG.uniform(0, 1, size=n) - 1
+    theta = np.arccos(costheta)
+
+    radius = r * np.cbrt(RNG.uniform(0, 1, size=n))
+
+    return radius * radian_angles_to_vector(theta, phi)
+
+
+def radian_angles_to_vector(el: np.float64 | NDArray, az: np.float64 | NDArray) -> NDArray:
+
+    if type(el) == np.float64 and type(az) == NDArray:
+        el = np.ones(az.shape) * el
+    if type(az) == np.float64 and type(el) == NDArray:
+        az = np.ones(el.shape) * az
+
+    assert az.shape == el.shape, f'az.shape = {az.shape} != {el.shape} = el.shape'
+
+    x = np.sin(el) * np.cos(az)
+    y = np.sin(el) * np.sin(az)
+    z = np.cos(el)
+
+    return np.stack([x, y, z], axis=-1)

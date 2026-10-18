@@ -11,10 +11,12 @@ from constants import AugmentedDataset, DefaultDataset, MAX_WORKERS, PI
 from density_estimator import PCMQuerier
 import particle_attribute_querier as PAQ
 from lidar import LiDARParams
+import ray_info as ray_info_instance
 from utils import reform_pc
 
 
 density_estimator = PCMQuerier()  # can replace PCMQuerier with NoOpKDE for tests
+ray_info_instance.set_export_func(export_if=lambda ray_idx, _: ray_idx <= 100)
 
 
 class ProcessParams(NamedTuple):
@@ -41,6 +43,7 @@ def list_sorted_pcds(pcd_dir: Path) -> List[Path]:
 def preset(scene_name: str) -> ProcessParams:
     lidar_params = LiDARParams.get(scene_name)
     PAQ.set_params(scene_name, lidar_params, use_expected=False)
+    ray_info_instance.set_stem('ray')
     params = ProcessParams(lidar_params=lidar_params, beta_0=1 * 10 ** -6 / PI, intervals_per_meter=10, sigma_max=50)
     return params
 

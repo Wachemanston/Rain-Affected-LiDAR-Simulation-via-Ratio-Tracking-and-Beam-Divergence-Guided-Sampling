@@ -1,6 +1,7 @@
 from concurrent.futures import ProcessPoolExecutor
+from functools import partial
 from pathlib import Path
-from typing import Callable, List, NamedTuple
+from typing import Callable, List, Tuple, NamedTuple
 
 import numpy as np
 from numpy.typing import NDArray
@@ -10,7 +11,7 @@ from scipy.constants import speed_of_light as c
 from constants import AugmentedDataset, DefaultDataset, MAX_WORKERS, PI, RNG
 from density_estimator import PCMQuerier
 import particle_attribute_querier as PAQ
-from shared_memory import PerceptResShm
+from shared_memory import PerceptResShm, SharedMemoryMeta
 from lidar import LiDARParams
 import ray_info as ray_info_instance
 from utils import reform_pc, uniformly_sample_points_in_sphere
@@ -18,6 +19,17 @@ from utils import reform_pc, uniformly_sample_points_in_sphere
 
 density_estimator = PCMQuerier()  # can replace PCMQuerier with NoOpKDE for tests
 ray_info_instance.set_export_func(export_if=lambda ray_idx, _: ray_idx <= 100)
+
+
+class RaySimCommonParams(NamedTuple):
+    beta_0: float
+    get_occlusion_func: Callable
+    i: NDArray
+    intervals_per_meter: float
+    max_range: float
+    R: NDArray
+    shm_metas: Tuple[SharedMemoryMeta, SharedMemoryMeta]
+    tau_h: float
 
 
 class ProcessParams(NamedTuple):
@@ -81,6 +93,18 @@ def process_pcd(pcd_path: Path, percept_res_shm: PerceptResShm, params: ProcessP
 
     percept_res_shm.reset_pulses_shm(ray_cnt=len(points), pulse_length=params.M_extended)
     percept_res_shm.reset_pc_shm(points=pc[:, :4])
+    get_occlusion_func = partial(get_occlusion, sigma_max=params.sigma_max, beam_divergence=lidar_params.beam_divergence)
+
+    rsc_params = RaySimCommonParams(
+        beta_0=params.beta_0,
+        get_occlusion_func=get_occlusion_func,
+        i=np.zeros(params.M_extended),
+        intervals_per_meter=params.intervals_per_meter,
+        max_range=lidar_params.max_range,
+        R=np.round(np.linspace(0, params.lidar_range_extended, params.M_extended), len(str(params.intervals_per_meter))),
+        shm_metas=percept_res_shm.metas,
+        tau_h=lidar_params.tau_h
+    )
 
     with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
         tmp = {executor.submit(process_single_beam, rd, d, i, c, ud, _i): _i for _i, (rd, d, i, c, ud) in enumerate(zip(ray_idx, distance, i_adjusted, channels, unit_dir))}

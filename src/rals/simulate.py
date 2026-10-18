@@ -11,7 +11,7 @@ from scipy.constants import speed_of_light as c
 from constants import AugmentedDataset, DefaultDataset, MAX_WORKERS, PI, RNG
 from density_estimator import PCMQuerier
 import particle_attribute_querier as PAQ
-from power_processor import PowerProcessParams
+from power_processor import PowerProcessor, PowerProcessParams
 from shared_memory import PerceptResShm, SharedMemoryMeta
 from lidar import LiDARParams
 import ray_info as ray_info_instance
@@ -135,7 +135,7 @@ def process_pcd(pcd_path: Path, percept_res_shm: PerceptResShm, params: ProcessP
     )
 
     with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        tmp = {executor.submit(process_single_beam, rd, d, i, c, ud, _i): _i for _i, (rd, d, i, c, ud) in enumerate(zip(ray_idx, distance, i_adjusted, channels, unit_dir))}
+        tmp = {executor.submit(process_single_beam, rs_params, rsc_params): _i for _i, rs_params in enumerate(rs_params_list)}
 
 
 def get_occlusion(d_orig: float, unit_dir: NDArray, sigma_max: float, beam_divergence: float, exporter_func: Callable):
@@ -208,8 +208,75 @@ def transmittances_to_ratios(transmittances: NDArray) -> NDArray:
     return ratio
 
 
-def process_single_beam():
-    pass
+def process_single_beam(j, rs_params: RaySimParams, rsc_params: RaySimCommonParams) -> None:
+    d_orig, i_adjusted, i_orig, max_intensity, ray_idx, unit_dir, pp_params = rs_params
+    beta_0, get_occlusion_func, i, intervals_per_meter, R, shm_metas, tau_h = rsc_params
+    i = np.copy(i)
+    R = np.copy(R)
+    pc_accessor, pulse_accessor = PerceptResShm.metas_to_accessors(shm_metas)
+    pc = pc_accessor.shared_ndarray
+    pulse = pulse_accessor.shared_ndarray
+
+    is_intervened = False
+    exporter_func = partial(ray_info_instance.export, ray_idx=ray_idx, unit_dir=unit_dir)
+    ts, ps = get_occlusion_func(d_orig=d_orig, unit_dir=unit_dir, exporter_func=exporter_func)
+
+    for key, r_j, ratio, _beta, alpha in ts:
+
+        if key != -1:
+            is_intervened = True
+            beta = _beta
+            CA_P0 = max_intensity
+        else:
+            beta = beta_0
+            CA_P0 = i_adjusted * d_orig ** 2 / beta_0
+
+        start_index = int(np.ceil(r_j * intervals_per_meter))
+        end_index = int(np.floor((r_j + c * tau_h) * intervals_per_meter) + 1)
+
+        for k in range(start_index, end_index):
+            i[k] += received_power(CA_P0, beta, ratio, R[k], r_j, tau_h)
+
+    if not is_intervened:
+        pulse[ray_idx, :] = i[:]
+
+        pc_accessor.close()
+        pulse_accessor.close()
+        return None
+
+    PowerProcessor.process(j, d_orig, i_orig, i, pc, pp_params)
+    pulse[ray_idx, :] = i[:]
+
+    pc_accessor.close()
+    pulse_accessor.close()
+
+
+def received_power(CA_P0: float, beta_0: float, ratio: float, r: float, r_j: float, tau_h: float) -> float:
+
+    return ((CA_P0 * beta_0 * ratio * xsi(r_j)) / (r_j ** 2)) * P_t(2 * (r - r_j) / c, tau_h)
+
+
+def P_t(t: NDArray, tau_h: float) -> NDArray:
+    return np.sin(PI * t / (2 * tau_h)) ** 2
+
+
+def xsi(R: float, R_1: float = 0.9, R_2: float = 1.0) -> float:
+
+    if R <= R_1:    # emitted ligth beam from the tansmitter is not captured by the receiver
+
+        return 0
+
+    elif R >= R_2:  # emitted ligth beam from the tansmitter is fully captured by the receiver
+
+        return 1
+
+    else:           # emitted ligth beam from the tansmitter is partly captured by the receiver
+
+        m = (1 - 0) / (R_2 - R_1)
+        b = 0 - (m * R_1)
+        y = m * R + b
+
+        return y
 
 
 def get_interesting_points(points: NDArray) -> NDArray:

@@ -10,6 +10,7 @@ from scipy.constants import speed_of_light as c
 from constants import AugmentedDataset, DefaultDataset, MAX_WORKERS, PI
 from density_estimator import PCMQuerier
 import particle_attribute_querier as PAQ
+from shared_memory import PerceptResShm
 from lidar import LiDARParams
 import ray_info as ray_info_instance
 from utils import reform_pc
@@ -52,16 +53,17 @@ def process_pcds(pcd_dir: Path, save_dir: Path, particle_dir: Path, params: Proc
     save_dir.mkdir(exist_ok=True, parents=True)
 
     for i, pcd_path in enumerate(list_sorted_pcds(pcd_dir)):
+        percept_res_shm = PerceptResShm(params.scene_name, scan_idx=i, stem='pulse')
         particles = np.load(str(particle_dir / f'particle_{i:04d}.npy')).astype(np.float32)
         assert particles.shape[1] == 3 and particles.ndim == 2, particles.shape
         density_estimator.set_kernel_with_points(particles)
 
-        augment_pc = process_pcd(pcd_path, params)
+        augment_pc = process_pcd(pcd_path, percept_res_shm, params)
         assert augment_pc.fields == AugmentedDataset.fields, augment_pc
         augment_pc.save(save_dir / f'augment_{i:04d}.pcd', encoding=Encoding.BINARY)
 
 
-def process_pcd(pcd_path: Path, params: ProcessParams) -> PointCloud:
+def process_pcd(pcd_path: Path, percept_res_shm: PerceptResShm, params: ProcessParams) -> PointCloud:
     lidar_params = params.lidar_params
     pc = PointCloud.from_path(pcd_path)
     pc = reform_pc(pc, DefaultDataset)
@@ -75,6 +77,9 @@ def process_pcd(pcd_path: Path, params: ProcessParams) -> PointCloud:
     distance = np.linalg.norm([x, y, z], axis=0)
     unit_dir = points[0:3] / distance.reshape(-1, 1)
     i_adjusted = lidar_params.calibrate_intensity(i_orig=intensity, d_orig=distance, channels=channels)
+
+    percept_res_shm.reset_pulses_shm(ray_cnt=len(points), pulse_length=params.M_extended)
+    percept_res_shm.reset_pc_shm(points=pc[:, :4])
 
     with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
         tmp = {executor.submit(process_single_beam, rd, d, i, c, ud, _i): _i for _i, (rd, d, i, c, ud) in enumerate(zip(ray_idx, distance, i_adjusted, channels, unit_dir))}

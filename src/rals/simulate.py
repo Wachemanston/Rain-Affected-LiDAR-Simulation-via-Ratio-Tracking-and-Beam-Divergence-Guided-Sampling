@@ -56,12 +56,13 @@ def process_pcds(pcd_dir: Path, save_dir: Path, particle_dir: Path, params: Proc
         assert particles.shape[1] == 3 and particles.ndim == 2, particles.shape
         density_estimator.set_kernel_with_points(particles)
 
-        augment_pc = process_pcd(pcd_path)
+        augment_pc = process_pcd(pcd_path, params)
         assert augment_pc.fields == AugmentedDataset.fields, augment_pc
         augment_pc.save(save_dir / f'augment_{i:04d}.pcd', encoding=Encoding.BINARY)
 
 
-def process_pcd(pcd_path: Path) -> PointCloud:
+def process_pcd(pcd_path: Path, params: ProcessParams) -> PointCloud:
+    lidar_params = params.lidar_params
     pc = PointCloud.from_path(pcd_path)
     pc = reform_pc(pc, DefaultDataset)
     points = pc.numpy(DefaultDataset.fields)

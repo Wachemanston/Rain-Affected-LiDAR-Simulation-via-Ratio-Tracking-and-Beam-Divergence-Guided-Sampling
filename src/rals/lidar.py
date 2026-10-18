@@ -114,6 +114,10 @@ class LiDARParams(ABC):
     def calibrate_intensity(cls, i_orig: NDArray, d_orig: NDArray, channels: NDArray) -> NDArray:
         return i_orig
 
+    @classmethod
+    def get_channel_max_intensity(cls, ch: int) -> NDArray:
+        return 255
+
 
 class VLP32C(LiDARParams):
     __num_lasers: int = 32
@@ -215,11 +219,15 @@ class HDL64E(LiDARParams):
         ch_info_focal_slope = np.array([['focal_slope'] for ci in channel_infos])
         ch_info_focal_offset = (1 - ch_info_focal_distance / 13100) ** 2  # from velodyne manual
 
-        max_intensity = np.where((channels == 53) or (channels == 55) or (channels == 56) or (channels == 58), 230, 255)
+        max_intensity = cls.get_channel_max_intensity(channels)
 
         i_adjusted = i_orig - 255 * ch_info_focal_slope * np.abs(ch_info_focal_offset - (1 - d_orig / cls.max_range) ** 2)
         i_adjusted = np.clip(i_adjusted, ch_info_min_intensity, max_intensity)
         return i_adjusted
+
+    @classmethod
+    def get_channel_max_intensity(cls, channels: NDArray) -> NDArray:
+        return np.where((channels == 53) or (channels == 55) or (channels == 56) or (channels == 58), 230, 255)
 
 
 class VLP16(VLP32C):

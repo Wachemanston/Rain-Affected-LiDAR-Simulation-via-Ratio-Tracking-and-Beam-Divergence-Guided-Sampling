@@ -11,7 +11,7 @@ RNG = np.random.default_rng()
 
 __config_dir = Path.cwd() / 'config'
 
-with open(__config_dir / 'scene_mediums.json', 'r') as f:
+with open(__config_dir / 'config.json', 'r') as f:
     scene_cfg = json.load(f)
 
 with open(__config_dir / 'scene_mediums.json', 'r') as f:

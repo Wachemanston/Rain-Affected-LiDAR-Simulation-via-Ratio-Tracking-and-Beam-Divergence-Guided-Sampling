@@ -47,6 +47,18 @@ def __pos_meta_to_ndarray(dict_pos: Dict[str, float | List[float]], max_seq_len:
     return np.column_stack((xs[:min_len], ys[:min_len], zs[:min_len]))
 
 
+class Transform(NamedTuple):
+    """
+    Args:
+        translate (NDArray): Translation vector (3,), format is [tx, ty, tz].
+        rotate (NDArray): Rotation Euler angles (3,) in radians, format is [rx, ry, rz].
+        scale (NDArray): Scaling factors (3,), format is [sx, sy, sz].
+    """
+    translate: NDArray
+    rotate: NDArray
+    scale: NDArray
+
+
 class DatasetParams(NamedTuple):
     fields: Tuple = ('x', 'y', 'z', 'intensity', 'channel')
     intensity_multiplier: int = 1

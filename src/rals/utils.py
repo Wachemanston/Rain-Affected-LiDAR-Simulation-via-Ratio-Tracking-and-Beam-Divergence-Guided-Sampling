@@ -3,7 +3,9 @@ import numpy as np
 from pypcd4 import PointCloud
 from typing import List, Tuple, Union
 
-from constants import DatasetParams, RNG
+from trimesh.transformations import euler_matrix, translation_matrix
+
+from constants import DatasetParams, RNG, Transform
 
 
 def calculate_execution_time(func):
@@ -85,3 +87,31 @@ def radian_angles_to_vector(el: np.float64 | NDArray, az: np.float64 | NDArray) 
     z = np.cos(el)
 
     return np.stack([x, y, z], axis=-1)
+
+
+def create_trs_matrix(transform: Transform) -> NDArray:
+    """
+    Creates a 4x4 homogeneous transformation matrix (TRS: Translation, Rotation, Scale).
+
+    Returns:
+        NDArray: A 4x4 transformation matrix.
+    """
+    translate, rotate, scale = transform
+    S = np.diag(np.append(scale, 1.0))
+    R = euler_matrix(rotate[0], rotate[1], rotate[2], 'sxyz')
+    T = translation_matrix(translate)
+    trs_matrix = T @ R @ S
+    return trs_matrix
+
+
+def transform_nx3_array(nx3_array: NDArray, transform: Transform | NDArray) -> NDArray:
+    assert nx3_array.ndim == 2 and nx3_array.shape[1] == 3, nx3_array.shape
+
+    if isinstance(transform, Transform):
+        trs_matrix = create_trs_matrix(transform)
+    else:
+        assert transform.shape == (4, 4), transform.shape
+        trs_matrix = transform
+
+    rs_matrix = trs_matrix[0:3, 0:3]
+    return (nx3_array @ rs_matrix.T) + trs_matrix[0:3, 3]

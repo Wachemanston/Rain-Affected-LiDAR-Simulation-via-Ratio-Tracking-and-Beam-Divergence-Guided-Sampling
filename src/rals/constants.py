@@ -19,6 +19,8 @@ with open(__config_dir / 'config.json', 'r') as f:
 with open(__config_dir / 'scene_mediums.json', 'r') as f:
     scene_mediums_cfg = json.load(f)
 
+with open(__config_dir / 'scene_objs.json', 'r', encoding='utf-8') as f:
+    objs_cfg = json.load(f)
 
 with open(__config_dir / 'scene_trajectory.json', 'r', encoding='utf-8') as f:
     __raw_pos = json.load(f)

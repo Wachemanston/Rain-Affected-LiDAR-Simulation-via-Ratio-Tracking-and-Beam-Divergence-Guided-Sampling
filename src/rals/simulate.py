@@ -102,7 +102,7 @@ def process_pcd(pcd_path: Path, percept_res_shm: PerceptResShm, params: ProcessP
     x, y, z, intensity = points[:, 0], points[:, 1], points[:, 2], points[:, 3]
     channels = points[:, 4].astype(np.uint8)
     distance = np.linalg.norm([x, y, z], axis=0)
-    unit_dir = points[0:3] / distance.reshape(-1, 1)
+    unit_dir = points[:, 0:3] / distance.reshape(-1, 1)
     i_adjusted = lidar_params.calibrate_intensity(i_orig=intensity, d_orig=distance, channels=channels)
     ch_max_intensity = lidar_params.get_channel_max_intensity(channels)
 

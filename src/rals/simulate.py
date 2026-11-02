@@ -111,7 +111,7 @@ def process_pcd(pcd_path: Path, percept_res_shm: PerceptResShm, params: ProcessP
     for tpl in zip(ray_idx, distance, intensity, i_adjusted, channels, unit_dir, ch_max_intensity):
         ri, d_orig, i_orig, i_ad, ch, ud, mi = tpl
         pp_params = PowerProcessParams(channel=ch,
-                                       focal_offset=channel_infos[ch]['focal_offset'],
+                                       focal_offset=(1 - channel_infos[ch]['focal_distance'] / 13100) ** 2,
                                        focal_slope=channel_infos[ch]['focal_slope'],
                                        intensity_range=(0, 255))
         rs_params_list.append(RaySimParams(

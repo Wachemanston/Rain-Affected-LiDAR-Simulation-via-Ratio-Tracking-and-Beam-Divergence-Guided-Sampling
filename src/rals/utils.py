@@ -56,9 +56,8 @@ def extract_pc_cols(pc: PointCloud, fields: Tuple[str]) -> NDArray:
 def reform_pc(pc: PointCloud, dataset_params: DatasetParams) -> PointCloud:
     points = extract_pc_cols(pc, dataset_params.fields)
 
-    intensity_idx = dataset_params.fields.find('intensity')
-    if intensity_idx > 0:
-        points[intensity_idx] *= dataset_params.intensity_multiplier
+    intensity_idx = dataset_params.fields.index('intensity')
+    points[intensity_idx] *= dataset_params.intensity_multiplier
 
     return PointCloud.from_points(points, fields=dataset_params.fields, types=dataset_params.types)
 

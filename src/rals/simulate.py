@@ -124,7 +124,7 @@ def process_pcd(pcd_path: Path, percept_res_shm: PerceptResShm, params: ProcessP
             pp_params=pp_params))
 
     percept_res_shm.reset_pulses_shm(ray_cnt=len(points), pulse_length=params.M_extended)
-    percept_res_shm.reset_pc_shm(points=pc[:, :4])
+    percept_res_shm.reset_pc_shm(points=points[:, :4])
     get_occlusion_func = partial(get_occlusion, sigma_max=params.sigma_max, beam_divergence=lidar_params.beam_divergence)
 
     rsc_params = RaySimCommonParams(

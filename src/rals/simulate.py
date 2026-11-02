@@ -68,7 +68,11 @@ def preset(scene_name: str) -> ProcessParams:
     lidar_params = LiDARParams.get(scene_name)
     PAQ.set_params(scene_name, lidar_params, use_expected=False)
     ray_info_instance.set_stem('ray')
-    params = ProcessParams(lidar_params=lidar_params, beta_0=1 * 10 ** -6 / PI, intervals_per_meter=10, sigma_max=50)
+    params = ProcessParams(scene_name=scene_name,
+                           lidar_params=lidar_params,
+                           beta_0=1 * 10 ** -6 / PI,
+                           intervals_per_meter=10,
+                           sigma_max=50)
     return params
 
 

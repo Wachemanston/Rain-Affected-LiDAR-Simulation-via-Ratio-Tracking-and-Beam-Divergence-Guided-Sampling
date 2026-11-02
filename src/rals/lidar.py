@@ -117,8 +117,8 @@ class LiDARParams(ABC):
         return i_orig
 
     @classmethod
-    def get_channel_max_intensity(cls, ch: int) -> NDArray:
-        return 255
+    def get_channel_max_intensity(cls, ch: NDArray) -> NDArray:
+        return np.full(len(ch), 255.)
 
 
 class VLP32C(LiDARParams):

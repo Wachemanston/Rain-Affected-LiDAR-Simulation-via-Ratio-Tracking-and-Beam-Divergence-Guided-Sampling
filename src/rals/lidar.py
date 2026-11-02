@@ -5,6 +5,7 @@ import yaml
 import numpy as np
 from numpy.typing import NDArray
 
+from constants import scene_cfg
 from utils import classproperty
 
 __all__ = ['VLP16', 'VLP32C', 'HDL64E', 'LiDARParams']
@@ -99,7 +100,8 @@ class LiDARParams(ABC):
         return 0.5 * np.pi - elevation_rad
 
     @staticmethod
-    def get(name: str) -> 'LiDARParams':
+    def get(scene_name: str) -> 'LiDARParams':
+        name = scene_cfg[scene_name]['LiDAR']
         if name in {'VLP-32C', 'VLP_32C'}:
             return VLP32C
         elif name in {'HDL-64E', 'HDL_64E'}:

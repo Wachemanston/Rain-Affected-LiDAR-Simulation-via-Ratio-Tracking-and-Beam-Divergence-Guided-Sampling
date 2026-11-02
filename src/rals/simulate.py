@@ -53,7 +53,7 @@ class ProcessParams(NamedTuple):
     @property
     def M_extended(self) -> int:
         M = self.lidar_params.max_range * self.intervals_per_meter
-        return int(np.ceil(M + c * self.lidar_params.tau_h * self.intervals_per_meter))
+        return int(np.ceil(M + c * self.lidar_params.tau_h * 1e-9 * self.intervals_per_meter))
 
     @property
     def lidar_range_extended(self) -> float:

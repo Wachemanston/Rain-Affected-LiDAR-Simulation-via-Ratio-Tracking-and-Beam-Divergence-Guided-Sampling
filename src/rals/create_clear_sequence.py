@@ -14,7 +14,7 @@ from raycast_mesh import get_percept_geometry
 from utils import radian_angles_to_vector, reform_pc, transform_nx3_array
 
 
-def clear_weather_simulation(scene_meta: SceneMeta, ideal_pcd_path: Path, obj_scene_name: str, output_root: Path) -> None:
+def clear_weather_simulation(scene_meta: SceneMeta, ideal_pcd_path: Path, obj_scene_name: str, output_root: Path, lidar_velocity: float = 0.) -> None:
     scene_name, trajectory = scene_meta.name, scene_meta.trajectory
     assert trajectory.shape[1] == 3 and trajectory.ndim == 2, trajectory.shape
 
@@ -33,7 +33,7 @@ def clear_weather_simulation(scene_meta: SceneMeta, ideal_pcd_path: Path, obj_sc
 
     idxes = range(len(trajectory))
     for scan_idx in idxes:
-        percept_points = percept_meshes(scene_meta.velocity, trajectory[scan_idx], points.copy(), obj_metas, obj_labels)
+        percept_points = percept_meshes(lidar_velocity, trajectory[scan_idx], points.copy(), obj_metas, obj_labels)
         mesh_pc = PointCloud.from_points(percept_points, AugmentedDataset.fields, AugmentedDataset.types)
         mesh_pc.save(output_dir / f'sim_{scan_idx:04d}.pcd', encoding=Encoding.BINARY)
 
@@ -142,6 +142,7 @@ def spherical_to_cartesian_by_mesh(r: float, theta: np.ndarray, phi: np.ndarray)
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--scene-name', dest='scene_name', type=str, help='Check the scene name in ./config/scene.json')
+    parser.add_argument('--velocity', dest='velocity', type=float, default=0.0, help='The LiDAR velocity in m/s')
     parser.add_argument('--obj-scene-name', dest='obj_scene_name', type=str, help='Use which objs in this scene')
     parser.add_argument('--seq-output-dir', dest='seq_output_dir', type=str, help='Path to the output sequence directory')
     parser.add_argument('--ideal-pcd-path', dest='ideal_pcd_pth', type=str, help='Path to the ideal .pcd')
@@ -159,7 +160,8 @@ def main() -> None:
     clear_weather_simulation(scene_meta,
                              ideal_pcd_path=args.ideal_pcd_path,
                              obj_scene_name=args.obj_scene_name,
-                             output_root=args.seq_output_dir)
+                             output_root=args.seq_output_dir,
+                             lidar_velocity=args.velocity)
 
 
 if __name__ == '__main__':

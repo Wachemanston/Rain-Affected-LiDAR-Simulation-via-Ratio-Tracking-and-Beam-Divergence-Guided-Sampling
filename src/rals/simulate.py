@@ -146,6 +146,9 @@ def process_pcd(pcd_path: Path, percept_res_shm: PerceptResShm, params: ProcessP
     with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
         tmp = {executor.submit(process_single_beam, rs_params, rsc_params): _i for _i, rs_params in enumerate(rs_params_list)}
 
+    points[:, 0:4] = percept_res_shm.percept_copy
+    return PointCloud.from_points(points, fields=AugmentedDataset.fields, types=AugmentedDataset.types)
+
 
 def get_occlusion(d_orig: float, unit_dir: NDArray, sigma_max: float, beam_divergence: float, exporter_func: Callable):
     sample_dist, sigmas = get_sample_dist(d_orig, unit_dir, sigma_max)

@@ -1,15 +1,16 @@
 from collections import defaultdict
 import json
 from pathlib import Path
-from typing import List
+from typing import List, NamedTuple
 
 import numpy as np
 from numpy.typing import NDArray
 from pypcd4 import PointCloud, Encoding
 
-from constants import AugmentedDataset, objs_cfg, PI, SceneMeta, Transform
+from constants import AugmentedDataset, DefaultDataset, objs_cfg, PI, SceneMeta, Transform, Weather
+from lidar import LiDARParams
 from raycast_mesh import get_percept_geometry
-from utils import reform_pc, transform_nx3_array
+from utils import radian_angles_to_vector, reform_pc, transform_nx3_array
 
 
 def clear_weather_simulation(scene_meta: SceneMeta, obj_scene_name: str, output_root: Path) -> None:
@@ -97,3 +98,42 @@ def export_scene_obj_label(scene_name: str, labels: List[np.uint8], objs: List[d
 
     with open(Path.cwd() / 'config' / f'{scene_name}_obj_label.json', 'w', encoding='utf-8') as f:
         json.dump(obj_id_to_label, f, indent=4)
+
+
+class IdealLiDARParams(NamedTuple):
+    position: np.ndarray
+    rotate: np.ndarray
+    rpm: int
+
+
+def create_ideal_point_cloud(save_to: str | Path, model: LiDARParams, params: IdealLiDARParams) -> None:
+    position, rotate, rpm = params
+    azimuth_angles, elevation_angles, max_range = model.azimuth_rad(rpm), model.elevation_rad, model.max_range
+    assert position.shape == (3,)
+
+    direction = calculate_lidar_percept_directions(model, rpm)
+    direction = transform_nx3_array(direction, Transform(translate=np.zeros(3), rotate=rotate, scale=np.ones(3)))
+    xyz = max_range * direction
+
+    intensities = np.zeros(len(xyz))
+    channels = np.hstack(tuple([channel] * len(azimuth_angles) for channel in range(len(elevation_angles))))
+    points = np.column_stack((xyz, intensities, channels))
+    print('total points', points.shape)
+
+    pc = PointCloud.from_points(points, fields=DefaultDataset.fields, types=DefaultDataset.types)
+    pc.save(save_to, encoding=Encoding.BINARY)
+
+
+def calculate_lidar_percept_directions(params: LiDARParams, rpm: int = 600) -> np.ndarray:
+    azimuth, elevation = params.azimuth_rad(rpm), params.elevation_rad
+    direction = spherical_to_cartesian_by_mesh(1, elevation, azimuth)
+    direction = direction.reshape(-1, 3)
+    return direction
+
+
+def spherical_to_cartesian_by_mesh(r: float, theta: np.ndarray, phi: np.ndarray) -> np.ndarray:
+    assert theta.ndim == 1 and phi.ndim == 1
+
+    m_theta, m_phi = np.meshgrid(theta, phi, indexing='ij')
+
+    return r * radian_angles_to_vector(m_theta, m_phi).reshape((len(theta), len(phi), 3))

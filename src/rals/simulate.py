@@ -1,3 +1,4 @@
+import argparse
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
@@ -297,9 +298,19 @@ def get_interesting_points(points: NDArray) -> NDArray:
     return np.ones(len(points), dtype=bool)
 
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--scene-name', dest='scene_name', type=str, help='Check the scene name in ./config/scene.json')
+    parser.add_argument('--pcd-dir', dest='pcd_dir', type=str, help='Path to the clear .pcd directory (i.e. `output_root` of `clear_weather_simulation`')
+    parser.add_argument('--save-dir', dest='save_dir', type=str, help='Path to the final output directory')
+    parser.add_argument('--particle-dir', dest='particle_dir', type=str, help='Path to the particle directory')
+    return parser.parse_args()
+
+
 def main():
-    params = preset('')
-    process_pcds('', '', '', params)
+    args = parse_args()
+    params = preset(args.scene_name)
+    process_pcds(Path(args.pcd_dir), Path(args.save_dir), Path(args.particle_dir), params)
 
 
 if __name__ == '__main__':

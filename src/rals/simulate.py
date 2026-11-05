@@ -8,7 +8,7 @@ from numpy.typing import NDArray
 from pypcd4 import PointCloud, Encoding
 from scipy.constants import speed_of_light as c
 
-from constants import AugmentedDataset, DefaultDataset, MAX_WORKERS, PI, RNG
+from constants import AugmentedDataset, MAX_WORKERS, PI, RNG
 from density_estimator import PCMQuerier
 import particle_attribute_querier as PAQ
 from power_processor import PowerProcessor, PowerProcessParams
@@ -95,8 +95,8 @@ def process_pcds(pcd_dir: Path, save_dir: Path, particle_dir: Path, params: Proc
 def process_pcd(pcd_path: Path, percept_res_shm: PerceptResShm, params: ProcessParams) -> PointCloud:
     lidar_params = params.lidar_params
     pc = PointCloud.from_path(pcd_path)
-    pc = reform_pc(pc, DefaultDataset)
-    points = pc.numpy(DefaultDataset.fields)
+    pc = reform_pc(pc, AugmentedDataset)
+    points = pc.numpy(AugmentedDataset.fields)
     mask = get_interesting_points(points)
     points = points[mask]
     ray_idx = np.arange(pc.points)[mask]

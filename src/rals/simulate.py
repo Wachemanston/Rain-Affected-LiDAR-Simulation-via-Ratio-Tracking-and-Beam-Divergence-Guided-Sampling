@@ -81,10 +81,12 @@ def process_pcds(pcd_dir: Path, save_dir: Path, particle_dir: Path, params: Proc
 
     for i, pcd_path in enumerate(list_sorted_pcds(pcd_dir)):
         percept_res_shm = PerceptResShm(params.scene_name, scan_idx=i, stem='pulse')
-        particles = np.load(str(particle_dir / f'particle_{i:04d}.npy')).astype(np.float32)
+        particle_path = particle_dir / f'particle_{i:04d}.npy'
+        particles = np.load(str(particle_path)).astype(np.float32)
         assert particles.shape[1] == 3 and particles.ndim == 2, particles.shape
         density_estimator.set_kernel_with_points(particles)
 
+        print(f'{i=} {pcd_path=} {particle_path=}')
         augment_pc = process_pcd(pcd_path, percept_res_shm, params)
         assert augment_pc.fields == AugmentedDataset.fields, augment_pc
         augment_pc.save(save_dir / f'augment_{i:04d}.pcd', encoding=Encoding.BINARY)

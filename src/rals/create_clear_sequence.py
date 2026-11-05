@@ -1,3 +1,4 @@
+import argparse
 from collections import defaultdict
 import json
 from pathlib import Path
@@ -13,9 +14,8 @@ from raycast_mesh import get_percept_geometry
 from utils import radian_angles_to_vector, reform_pc, transform_nx3_array
 
 
-def clear_weather_simulation(scene_meta: SceneMeta, obj_scene_name: str, output_root: Path) -> None:
-    ideal_pcd_path = Path.cwd() / 'Ouster.pcd'
-    scene_name, trajectory, weather = scene_meta.name, scene_meta.trajectory, scene_meta.weather
+def clear_weather_simulation(scene_meta: SceneMeta, ideal_pcd_path: Path, obj_scene_name: str, output_root: Path) -> None:
+    scene_name, trajectory = scene_meta.name, scene_meta.trajectory
     assert trajectory.shape[1] == 3 and trajectory.ndim == 2, trajectory.shape
 
     ideal_pc = PointCloud.from_path(ideal_pcd_path)
@@ -137,3 +137,30 @@ def spherical_to_cartesian_by_mesh(r: float, theta: np.ndarray, phi: np.ndarray)
     m_theta, m_phi = np.meshgrid(theta, phi, indexing='ij')
 
     return r * radian_angles_to_vector(m_theta, m_phi).reshape((len(theta), len(phi), 3))
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--scene-name', dest='scene_name', type=str, help='Check the scene name in ./config/scene.json')
+    parser.add_argument('--obj-scene-name', dest='obj_scene_name', type=str, help='Use which objs in this scene')
+    parser.add_argument('--seq-output-dir', dest='seq_output_dir', type=str, help='Path to the output sequence directory')
+    parser.add_argument('--ideal-pcd-path', dest='ideal_pcd_pth', type=str, help='Path to the ideal .pcd')
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    scene_meta = SceneMeta(args.scene_name, Weather.Clear)
+
+    yaw, pitch, roll = -0.0032020896, 0.83862830012, 0
+    params = IdealLiDARParams(position=np.array([0, 0, 3]), rotate=np.array([roll, pitch, yaw]), rpm=600)
+
+    create_ideal_point_cloud(save_to=args.ideal_pcd_path, model=LiDARParams.get(args.scene_name), params=params)
+    clear_weather_simulation(scene_meta,
+                             ideal_pcd_path=args.ideal_pcd_path,
+                             obj_scene_name=args.obj_scene_name,
+                             output_root=args.seq_output_dir)
+
+
+if __name__ == '__main__':
+    main()

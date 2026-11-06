@@ -13,6 +13,7 @@ dependencies = [
     "miepython>=3.3.0",
     "pypcd4>=1.5.0",
     "pyyaml>=6.0.3",
+    "rtree>=1.4.1",
     "scipy>=1.18.1",
     "trimesh>=5.1.0",
 ]

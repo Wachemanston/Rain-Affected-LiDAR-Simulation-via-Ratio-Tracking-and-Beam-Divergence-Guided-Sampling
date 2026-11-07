@@ -220,7 +220,7 @@ def get_sample_dist(dist: float, unit_dir: NDArray, sigma_max: float) -> NDArray
 
 def ratio_tracking(unit_dir: NDArray, sample_dist: NDArray, sigma_max: float, beam_divergence: float) -> (NDArray, NDArray, NDArray):
     sample_pos = sample_dist[:, np.newaxis] * unit_dir[np.newaxis, :]
-    h = np.tan(np.deg2rad(0.5 * beam_divergence)) * sample_dist
+    h = np.tan(0.5 * beam_divergence) * sample_dist
     prob = monte_carlo_estimate_prob(unit_dir=unit_dir, sample_dist=sample_dist, h=h, sample_size=1)
 
     pcms = prob / (h ** 3 * PI * 4/3)

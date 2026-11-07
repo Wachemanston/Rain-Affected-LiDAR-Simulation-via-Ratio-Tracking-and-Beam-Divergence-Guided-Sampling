@@ -168,7 +168,7 @@ def process_pcd(pcd_path: Path, percept_res_shm: PerceptResShm, params: ProcessP
 
 
 def get_occlusion(d_orig: float, unit_dir: NDArray, sigma_max: float, beam_divergence: float, exporter_func: Callable):
-    sample_dist, sigmas = get_sample_dist(d_orig, unit_dir, sigma_max)
+    sample_dist = get_sample_dist(d_orig, unit_dir, sigma_max)
     transmittances, betas, alphas = ratio_tracking(unit_dir, sample_dist, sigma_max, beam_divergence)
     ratios = transmittances_to_ratios(transmittances)
     betas /= sigma_max

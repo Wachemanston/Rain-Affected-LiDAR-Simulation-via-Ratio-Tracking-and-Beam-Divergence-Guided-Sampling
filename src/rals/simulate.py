@@ -192,7 +192,7 @@ def get_sample_dist(dist: float, unit_dir: NDArray, sigma_max: float) -> NDArray
         cum_dR = cum_dR[cum_dR < dist]
         sample_dist = np.hstack((sample_dist, cum_dR))
 
-    return sample_dist[1:].reshape(-1, 1) * unit_dir.reshape(1, 3)
+    return sample_dist[1:]
 
 
 def ratio_tracking(unit_dir: NDArray, sample_dist: NDArray, sigma_max: float, beam_divergence: float) -> (NDArray, NDArray, NDArray):
@@ -231,6 +231,11 @@ def transmittances_to_ratios(transmittances: NDArray) -> NDArray:
     return ratio
 
 
+def is_lidar_no_resp_perception(d_orig: float, max_range: float, i_orig: float) -> bool:
+    rel_error = 1e-4
+    return d_orig >= (max_range - rel_error) and i_orig <= 0
+
+
 def process_single_beam(j, rs_params: RaySimParams, rsc_params: RaySimCommonParams) -> None:
     d_orig, i_adjusted, i_orig, max_intensity, ray_idx, unit_dir, pp_params = rs_params
     beta_0, get_occlusion_func, i, intervals_per_meter, R, shm_metas, tau_h = rsc_params
@@ -253,6 +258,8 @@ def process_single_beam(j, rs_params: RaySimParams, rsc_params: RaySimCommonPara
         else:
             beta = beta_0
             CA_P0 = i_adjusted * d_orig ** 2 / beta_0
+            if is_lidar_no_resp_perception(d_orig, max_range, i_orig):
+                continue
 
         start_index = int(np.ceil(r_j * intervals_per_meter))
         end_index = int(np.floor((r_j + c * tau_h) * intervals_per_meter) + 1)

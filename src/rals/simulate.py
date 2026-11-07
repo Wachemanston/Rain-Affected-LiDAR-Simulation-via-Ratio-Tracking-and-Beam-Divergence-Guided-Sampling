@@ -290,7 +290,7 @@ def process_single_beam(j, rs_params: RaySimParams, rsc_params: RaySimCommonPara
     pc_accessor, pulse_accessor = PerceptResShm.metas_to_accessors(shm_metas)
 
     pulse = pulse_accessor.shared_ndarray
-    pulse[ray_idx, :] = i[:]
+    pulse[j, :] = i[:]
     pulse_accessor.close()
 
     if not is_intervened:

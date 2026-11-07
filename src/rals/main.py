@@ -31,7 +31,7 @@ clear_weather_simulation(scene_meta,
                          ideal_pcd_path=Path(example_ideal_pcd_path),
                          obj_scene_name=example_obj_scene_name,
                          output_root=Path(example_seq_output_dir),
-                         lidar_velocity=example_velocity)
+                         lidar_velocity=np.array([example_velocity, 0, 0]))
 
 print('[3] Apply medium effect')
 params = preset(example_scene_name)

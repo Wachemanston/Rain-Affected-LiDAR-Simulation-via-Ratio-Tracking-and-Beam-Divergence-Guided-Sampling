@@ -14,9 +14,10 @@ from raycast_mesh import get_percept_geometry
 from utils import radian_angles_to_vector, reform_pc, transform_nx3_array
 
 
-def clear_weather_simulation(scene_meta: SceneMeta, ideal_pcd_path: Path, obj_scene_name: str, output_root: Path, lidar_velocity: float = 0.) -> None:
+def clear_weather_simulation(scene_meta: SceneMeta, ideal_pcd_path: Path, obj_scene_name: str, output_root: Path, lidar_velocity: NDArray = np.zeros(3)) -> None:
     scene_name, trajectory = scene_meta.name, scene_meta.trajectory
     assert trajectory.shape[1] == 3 and trajectory.ndim == 2, trajectory.shape
+    assert lidar_velocity.shape == (3,), f'{lidar_velocity.shape}, {lidar_velocity}'
 
     ideal_pc = PointCloud.from_path(ideal_pcd_path)
     ideal_pc = reform_pc(ideal_pc, AugmentedDataset)
@@ -161,7 +162,7 @@ def main() -> None:
                              ideal_pcd_path=args.ideal_pcd_path,
                              obj_scene_name=args.obj_scene_name,
                              output_root=args.seq_output_dir,
-                             lidar_velocity=args.velocity)
+                             lidar_velocity=np.array([args.velocity, 0, 0]))
 
 
 if __name__ == '__main__':

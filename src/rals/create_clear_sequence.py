@@ -61,8 +61,8 @@ def percept_meshes(lidar_velocity: NDArray, lidar_translate: NDArray, points_in_
             dists[mask] = hit_dists[mask]
             labels[mask] = label
 
-    points = np.hstack((points_in_lidar_space, labels.reshape(-1, 1)))
-    return points
+    points_in_lidar_space[:, 5] = labels
+    return points_in_lidar_space
 
 
 def rolling_shutter_effect(lidar_velocity, unit_ray_directions, sampling_rate=10):

@@ -1,5 +1,5 @@
 import argparse
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import as_completed, ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
 from typing import Callable, List, Tuple, NamedTuple
@@ -155,7 +155,13 @@ def process_pcd(pcd_path: Path, percept_res_shm: PerceptResShm, params: ProcessP
     )
 
     with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        tmp = {executor.submit(process_single_beam, rs_params, rsc_params): _i for _i, rs_params in enumerate(rs_params_list)}
+        future_to_idx = {executor.submit(process_single_beam, _i, rs_params, rsc_params): _i for _i, rs_params in enumerate(rs_params_list)}
+        for future in as_completed(future_to_idx):
+            try:
+                future.result()
+            except Exception as e:
+                print(f'\033[91m {e}\033[00m')
+                exit(0)
 
     points[:, 0:4] = percept_res_shm.percept_copy
     return PointCloud.from_points(points, fields=AugmentedDataset.fields, types=AugmentedDataset.types)

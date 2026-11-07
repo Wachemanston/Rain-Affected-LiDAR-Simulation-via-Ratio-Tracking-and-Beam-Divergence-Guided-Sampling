@@ -247,9 +247,6 @@ def process_single_beam(j, rs_params: RaySimParams, rsc_params: RaySimCommonPara
     beta_0, get_occlusion_func, i, intervals_per_meter, R, shm_metas, tau_h = rsc_params
     i = np.copy(i)
     R = np.copy(R)
-    pc_accessor, pulse_accessor = PerceptResShm.metas_to_accessors(shm_metas)
-    pc = pc_accessor.shared_ndarray
-    pulse = pulse_accessor.shared_ndarray
 
     is_intervened = False
     exporter_func = partial(ray_info_instance.export, ray_idx=ray_idx, unit_dir=unit_dir)
@@ -273,18 +270,18 @@ def process_single_beam(j, rs_params: RaySimParams, rsc_params: RaySimCommonPara
         for k in range(start_index, end_index):
             i[k] += received_power(CA_P0, beta, ratio, R[k], r_j, tau_h)
 
-    if not is_intervened:
-        pulse[ray_idx, :] = i[:]
+    pc_accessor, pulse_accessor = PerceptResShm.metas_to_accessors(shm_metas)
 
-        pc_accessor.close()
-        pulse_accessor.close()
-        return None
-
-    PowerProcessor.process(j, d_orig, i_orig, i, pc, pp_params)
+    pulse = pulse_accessor.shared_ndarray
     pulse[ray_idx, :] = i[:]
-
-    pc_accessor.close()
     pulse_accessor.close()
+
+    if not is_intervened:
+        return
+
+    pc = pc_accessor.shared_ndarray
+    PowerProcessor.process(j, d_orig, i_orig, i, pc, pp_params)
+    pc_accessor.close()
 
 
 def received_power(CA_P0: float, beta_0: float, ratio: float, r: float, r_j: float, tau_h: float) -> float:

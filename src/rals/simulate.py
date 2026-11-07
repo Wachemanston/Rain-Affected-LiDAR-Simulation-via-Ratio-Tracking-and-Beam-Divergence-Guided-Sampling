@@ -301,7 +301,7 @@ def get_interesting_points(points: NDArray) -> NDArray:
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--scene-name', dest='scene_name', type=str, help='Check the scene name in ./config/scene.json')
-    parser.add_argument('--pcd-dir', dest='pcd_dir', type=str, help='Path to the clear .pcd directory (i.e. `output_root` of `clear_weather_simulation`')
+    parser.add_argument('--pcd-dir', dest='pcd_dir', type=str, help='Path to the clear .pcd directory (i.e. `output_root` (of `clear_weather_simulation`) + scene anme')
     parser.add_argument('--save-dir', dest='save_dir', type=str, help='Path to the final output directory')
     parser.add_argument('--particle-dir', dest='particle_dir', type=str, help='Path to the particle directory')
     return parser.parse_args()

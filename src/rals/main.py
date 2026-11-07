@@ -35,4 +35,4 @@ clear_weather_simulation(scene_meta,
 
 print('[3] Apply medium effect')
 params = preset(example_scene_name)
-process_pcds(Path(example_seq_output_dir), Path(example_final_output_dir), Path(example_particle_dir), params)
+process_pcds(Path(example_seq_output_dir) / example_scene_name, Path(example_final_output_dir), Path(example_particle_dir), params)

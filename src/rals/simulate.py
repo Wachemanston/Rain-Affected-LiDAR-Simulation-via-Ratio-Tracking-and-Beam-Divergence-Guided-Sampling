@@ -115,6 +115,13 @@ def process_pcds(pcd_dir: Path, save_dir: Path, particle_dir: Path, params: Proc
         percept_res_shm.close_shms()
 
 
+def print_type_summary(type_res: NDArray) -> None:
+    no_affected = np.sum(type_res == 0).astype(int)
+    attenuate = np.sum(type_res == 1).astype(int)
+    scatter = np.sum(type_res == 2).astype(int)
+    print(f'summary: {no_affected=}, {attenuate=}, {scatter=}')
+
+
 def process_pcd(pcd_path: Path, percept_res_shm: PerceptResShm, params: ProcessParams) -> PointCloud:
     lidar_params = params.lidar_params
     pc = PointCloud.from_path(pcd_path)
@@ -173,6 +180,7 @@ def process_pcd(pcd_path: Path, percept_res_shm: PerceptResShm, params: ProcessP
                 exit(0)
 
     points[:, 0:4] = percept_res_shm.percept_copy
+    print_type_summary(percept_res_shm.type_copy)
     return PointCloud.from_points(points, fields=AugmentedDataset.fields, types=AugmentedDataset.types)
 
 

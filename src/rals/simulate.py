@@ -72,7 +72,7 @@ def preset(scene_name: str, ray_output_dir: Path) -> ProcessParams:
     PAQ.set_params(scene_name, lidar_params, use_expected=False)
     PowerProcessor.set_params(PowerProcessorParams(intervals_per_meter=intervals_per_meter,
                                                    tau_h_ns=lidar_params.tau_h,
-                                                   threshold=1.0))
+                                                   threshold=lidar_params.intensity_threshold))
     ray_info_instance.set_stem('ray')
     ray_info_instance.set_output_dir(ray_output_dir)
     params = ProcessParams(scene_name=scene_name,

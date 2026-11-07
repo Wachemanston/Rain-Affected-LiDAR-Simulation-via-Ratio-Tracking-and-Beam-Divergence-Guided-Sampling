@@ -35,6 +35,7 @@ def _select_useful_info(info: dict) -> dict:
 class LiDARParams(ABC):
     _channel_infos = None
     _wavelength_nm = None
+    _intensity_threshold = 0
 
     @classmethod
     @abstractmethod
@@ -119,6 +120,10 @@ class LiDARParams(ABC):
     @classmethod
     def get_channel_max_intensity(cls, ch: NDArray) -> NDArray:
         return np.full(len(ch), 255.)
+
+    @classproperty
+    def intensity_threshold(cls) -> float:
+        return cls._intensity_threshold
 
 
 class VLP32C(LiDARParams):
@@ -282,6 +287,7 @@ class Ouster0_128x1024(LiDARParams):
     __num_lasers = 128
     __horizontal_resolution = 1024
     _wavelength_nm = 865  # nm
+    _intensity_threshold = 1.0
 
     @classmethod
     def _init_channel_infos(cls) -> None:

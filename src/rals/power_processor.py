@@ -21,6 +21,13 @@ class PowerProcessParams(NamedTuple):
     intensity_range: Tuple[float, float]
 
 
+class PowerProcessorParams(NamedTuple):
+    intervals_per_meter: int
+    tau_h_ns: float
+    threshold: float
+
+
+
 class _PowerProcessor:
     def __init__(self):
         self.mode: ReturnMode = ReturnMode.Strongest
@@ -87,10 +94,10 @@ class _PowerProcessor:
 
         pc[j, 3] = clipped_i
 
-    def set_params(self, **kwargs) -> None:
-        self.__tau_h = kwargs['tau_h'] if 'tau_h' in kwargs else self.__tau_h
-        self.__threshold = kwargs['threshold'] if 'threshold' in kwargs else self.__threshold
-        self.__intervals_per_meter = kwargs['intervals_per_meter'] if 'intervals_per_meter' in kwargs else self.__intervals_per_meter
+    def set_params(self, params: PowerProcessorParams) -> None:
+        self.__tau_h = 1e-9 * params.tau_h_ns
+        self.__threshold = params.threshold
+        self.__intervals_per_meter = params.intervals_per_meter
 
 
 PowerProcessor = _PowerProcessor()

@@ -34,6 +34,7 @@ def clear_weather_simulation(scene_meta: SceneMeta, ideal_pcd_path: Path, obj_sc
 
     idxes = range(len(trajectory))
     for scan_idx in idxes:
+        print(f'{scan_idx=}')
         percept_points = percept_meshes(lidar_velocity, trajectory[scan_idx], points.copy(), obj_metas, obj_labels)
         mesh_pc = PointCloud.from_points(percept_points, AugmentedDataset.fields, AugmentedDataset.types)
         mesh_pc.save(output_dir / f'sim_{scan_idx:04d}.pcd', encoding=Encoding.BINARY)
@@ -60,6 +61,7 @@ def percept_meshes(lidar_velocity: NDArray, lidar_translate: NDArray, points_in_
 
             dists[mask] = hit_dists[mask]
             labels[mask] = label
+        print(f'percept {obj_meta["name"] if "name" in obj_meta else obj_meta}, {is_hit=}')
 
     points_in_lidar_space[:, 5] = labels
     return points_in_lidar_space

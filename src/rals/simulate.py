@@ -58,7 +58,7 @@ class ProcessParams(NamedTuple):
 
     @property
     def lidar_range_extended(self) -> float:
-        return self.lidar_params.max_range + c * self.lidar_params.tau_h
+        return self.lidar_params.max_range + c * self.lidar_params.tau_h * 1e-9
 
 
 def list_sorted_pcds(pcd_dir: Path) -> List[Path]:
@@ -151,7 +151,7 @@ def process_pcd(pcd_path: Path, percept_res_shm: PerceptResShm, params: ProcessP
         max_range=lidar_params.max_range,
         R=np.round(np.linspace(0, params.lidar_range_extended, params.M_extended), len(str(params.intervals_per_meter))),
         shm_metas=percept_res_shm.metas,
-        tau_h=lidar_params.tau_h
+        tau_h=lidar_params.tau_h * 1e-9,
     )
 
     with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:

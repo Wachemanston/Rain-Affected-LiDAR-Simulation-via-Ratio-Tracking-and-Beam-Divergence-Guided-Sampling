@@ -97,7 +97,7 @@ def process_pcds(pcd_dir: Path, save_dir: Path, particle_dir: Path, params: Proc
         particles = load_particles(particle_path)
         density_estimator.set_kernel_with_points(particles)
 
-        print(f'{i=} {pcd_path=} {particle_path=}')
+        print(f'process {i=}, {pcd_path.name=}, {particle_path.name=}')
         augment_pc = process_pcd(pcd_path, percept_res_shm, params)
         assert augment_pc.fields == AugmentedDataset.fields, augment_pc
         augment_pc.save(save_dir / f'augment_{i:04d}.pcd', encoding=Encoding.BINARY)

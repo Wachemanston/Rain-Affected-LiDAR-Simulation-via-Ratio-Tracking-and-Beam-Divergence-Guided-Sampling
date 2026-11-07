@@ -1,2 +1,7 @@
 .venv/
 .idea/
+
+# output
+example/output/
+example/pcd_dir/
+config/*_obj_label.json

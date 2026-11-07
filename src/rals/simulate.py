@@ -234,7 +234,7 @@ def ratio_tracking(unit_dir: NDArray, sample_dist: NDArray, sigma_max: float, be
     return np.cumprod(sample_w), betas, alphas
 
 
-def monte_carlo_estimate_prob(unit_dir: NDArray, sample_dist: NDArray, h: int, sample_size: int) -> NDArray:
+def monte_carlo_estimate_prob(unit_dir: NDArray, sample_dist: NDArray, h: NDArray, sample_size: int) -> NDArray:
     rdn_pos = uniformly_sample_points_in_sphere(r=0.001, n=len(sample_dist) * sample_size)
     sample_pos = np.repeat(sample_dist, sample_size)[:, np.newaxis] * unit_dir[np.newaxis, :] + rdn_pos
 

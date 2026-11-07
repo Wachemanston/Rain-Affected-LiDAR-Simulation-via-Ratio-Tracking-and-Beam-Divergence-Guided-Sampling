@@ -43,11 +43,11 @@ class _PowerProcessor:
         res = np.argwhere(powers >= self.__threshold)
         return res[-1] if len(res) else -1
 
-    def select_strongest(self, powers: NDArray, consider_thres: bool = False) -> int:
-        i_max = np.argmax(powers)
-        if consider_thres and powers[i_max] < self.__threshold:
+    def select_strongest(self, powers: NDArray) -> int:
+        max_index = np.argmax(powers)
+        if powers[max_index] < self.__threshold:
             return -1
-        return i_max
+        return max_index
 
     # adapt from: https://github.com/SysCV/LiDAR_snow_sim/blob/main/tools/snowfall/simulation.py
     def process(self, j: int, d_orig: float, i_orig: float, i: NDArray, pc: NDArray, params: PowerProcessParams) -> None:

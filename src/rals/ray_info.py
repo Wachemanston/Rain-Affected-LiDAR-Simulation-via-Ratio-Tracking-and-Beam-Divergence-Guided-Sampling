@@ -7,7 +7,7 @@ from typing import Any, Callable, Dict, List, Tuple
 __info_cols = 'alphas', 'betas', 'sample_pos', 'transmittance'
 __optional_cols = 'weights', 'unit_dir'
 __stem = 'ray'
-__scene_name = 'default'
+__output_dir = Path.cwd()
 __scan_idx = 0
 __export_if = lambda *_: False
 
@@ -59,7 +59,7 @@ def read(file_path: str | Path) -> Dict[str, NDArray]:
 
 
 def get_store_folder() -> Path:
-    folder = Path.cwd() / __scene_name / __stem / f'{__scan_idx:04d}'
+    folder = __output_dir / __stem / f'{__scan_idx:04d}'
     folder.mkdir(parents=True, exist_ok=True)
     return folder
 
@@ -72,9 +72,9 @@ def export(ray_idx: int, unit_dir: NDArray, **kwargs) -> None:
         np.savez(str(get_store_folder() / f'{__stem}_{ray_idx:06d}.npz'), unit_dir=unit_dir, **kwargs)
 
 
-def set_scene_name(scene_name: str) -> None:
-    global __scene_name
-    __scene_name = scene_name
+def set_output_dir(output_dir: Path) -> None:
+    global __output_dir
+    __output_dir = output_dir
 
 
 def set_scan_idx(scan_idx: int) -> None:

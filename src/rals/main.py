@@ -13,10 +13,10 @@ example_obj_scene_name = 'artc_north'
 example_seq_output_dir = './example/pcd_dir'
 example_velocity = 10  # m/s
 example_particle_dir = './example/particle_dir'
-example_final_output_dir = './example'
+example_final_output_dir = './example/output'
 
 print('[1] Create pure LiDAR perception')
-for p in [example_particle_dir, example_seq_output_dir]:
+for p in [example_particle_dir, example_seq_output_dir, example_final_output_dir]:
     Path(p).mkdir(exist_ok=True, parents=True)
 
 scene_meta = SceneMeta(example_scene_name, Weather.Clear)
@@ -34,5 +34,5 @@ clear_weather_simulation(scene_meta,
                          lidar_velocity=np.array([example_velocity, 0, 0]))
 
 print('[3] Apply medium effect')
-params = preset(example_scene_name)
+params = preset(example_scene_name, Path(example_final_output_dir))
 process_pcds(Path(example_seq_output_dir) / example_scene_name, Path(example_final_output_dir), Path(example_particle_dir), params)

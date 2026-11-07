@@ -64,12 +64,10 @@ class PerceptResShm:
     __col_to_idx = {'x': 0, 'y': 1, 'z': 2, 'intensity': 3, 'type': 4}
     __percept_cols = __col_to_idx['x'], __col_to_idx['y'], __col_to_idx['z'], __col_to_idx['intensity']
 
-    def __init__(self, scene_name: str, scan_idx: int, max_elements: int = int(1e9), stem: str = 'pulse'):
+    def __init__(self, output_dir: Path, scan_idx: int, max_elements: int = int(1e9), stem: str = 'pulse'):
         self.__max_elements = max_elements
         self.__stem = stem
-        pulse_folder = Path.cwd() / scene_name / self.__stem
-        pulse_folder.mkdir(parents=True, exist_ok=True)
-        self.__pulse_path = pulse_folder / f'{self.__stem}_{scan_idx:04d}.bin'
+        self.__pulse_path = output_dir / f'{self.__stem}_{scan_idx:04d}.bin'
         self.__pc_shm: SharedMemoryCreator | None = None
         self.__pulses_shm: SharedMemoryCreator | None = None
 

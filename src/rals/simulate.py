@@ -65,10 +65,11 @@ def list_sorted_pcds(pcd_dir: Path) -> List[Path]:
     return list(sorted(pcd_dir.glob('*.pcd')))
 
 
-def preset(scene_name: str) -> ProcessParams:
+def preset(scene_name: str, ray_output_dir: Path) -> ProcessParams:
     lidar_params = LiDARParams.get(scene_name)
     PAQ.set_params(scene_name, lidar_params, use_expected=False)
     ray_info_instance.set_stem('ray')
+    ray_info_instance.set_output_dir(ray_output_dir)
     params = ProcessParams(scene_name=scene_name,
                            lidar_params=lidar_params,
                            beta_0=1 * 10 ** -6 / PI,
@@ -91,8 +92,11 @@ def load_particles(particle_path: Path) -> NDArray:
 def process_pcds(pcd_dir: Path, save_dir: Path, particle_dir: Path, params: ProcessParams) -> None:
     save_dir.mkdir(exist_ok=True, parents=True)
 
+    for output_dir_name in ('pulse', 'sim'):
+        (save_dir / output_dir_name).mkdir(exist_ok=True, parents=True)
+
     for i, pcd_path in enumerate(list_sorted_pcds(pcd_dir)):
-        percept_res_shm = PerceptResShm(params.scene_name, scan_idx=i, stem='pulse')
+        percept_res_shm = PerceptResShm(output_dir=save_dir / 'pulse', scan_idx=i, stem='pulse')
         particle_path = particle_dir / f'particle_{i:04d}.npy'
         particles = load_particles(particle_path)
         density_estimator.set_kernel_with_points(particles)
@@ -100,7 +104,7 @@ def process_pcds(pcd_dir: Path, save_dir: Path, particle_dir: Path, params: Proc
         print(f'process {i=}, {pcd_path.name=}, {particle_path.name=}')
         augment_pc = process_pcd(pcd_path, percept_res_shm, params)
         assert augment_pc.fields == AugmentedDataset.fields, augment_pc
-        augment_pc.save(save_dir / f'augment_{i:04d}.pcd', encoding=Encoding.BINARY)
+        augment_pc.save(save_dir / 'sim' / f'augment_{i:04d}.pcd', encoding=Encoding.BINARY)
 
         percept_res_shm.export_pulses()
         percept_res_shm.close_shms()
@@ -329,7 +333,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    params = preset(args.scene_name)
+    params = preset(args.scene_name, Path(args.save_dir))
     process_pcds(Path(args.pcd_dir), Path(args.save_dir), Path(args.particle_dir), params)
 
 

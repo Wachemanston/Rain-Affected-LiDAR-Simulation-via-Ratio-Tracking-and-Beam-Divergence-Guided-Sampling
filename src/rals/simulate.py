@@ -250,7 +250,7 @@ def process_single_beam(j, rs_params: RaySimParams, rsc_params: RaySimCommonPara
 
     is_intervened = False
     exporter_func = partial(ray_info_instance.export, ray_idx=ray_idx, unit_dir=unit_dir)
-    ts, ps = get_occlusion_func(d_orig=d_orig, unit_dir=unit_dir, exporter_func=exporter_func)
+    ts = get_occlusion_func(d_orig=d_orig, unit_dir=unit_dir, exporter_func=exporter_func)
 
     for key, r_j, ratio, _beta, alpha in ts:
 

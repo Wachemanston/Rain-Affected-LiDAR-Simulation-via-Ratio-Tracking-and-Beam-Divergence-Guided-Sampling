@@ -77,14 +77,24 @@ def preset(scene_name: str) -> ProcessParams:
     return params
 
 
+def load_particles(particle_path: Path) -> NDArray:
+    if not particle_path.exists():
+        print('\033[93m no available particle .npy\033[00m')
+        fake_particle = np.array([[-1e9, 0, 0]])
+        return fake_particle
+
+    particles = np.load(str(particle_path)).astype(np.float32)
+    assert particles.shape[1] == 3 and particles.ndim == 2, particles.shape
+    return particles
+
+
 def process_pcds(pcd_dir: Path, save_dir: Path, particle_dir: Path, params: ProcessParams) -> None:
     save_dir.mkdir(exist_ok=True, parents=True)
 
     for i, pcd_path in enumerate(list_sorted_pcds(pcd_dir)):
         percept_res_shm = PerceptResShm(params.scene_name, scan_idx=i, stem='pulse')
         particle_path = particle_dir / f'particle_{i:04d}.npy'
-        particles = np.load(str(particle_path)).astype(np.float32)
-        assert particles.shape[1] == 3 and particles.ndim == 2, particles.shape
+        particles = load_particles(particle_path)
         density_estimator.set_kernel_with_points(particles)
 
         print(f'{i=} {pcd_path=} {particle_path=}')

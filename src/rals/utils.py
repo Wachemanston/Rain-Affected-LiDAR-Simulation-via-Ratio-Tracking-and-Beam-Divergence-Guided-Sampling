@@ -69,7 +69,7 @@ def uniformly_sample_points_in_sphere(r: float, n: int) -> NDArray:
 
     radius = r * np.cbrt(RNG.uniform(0, 1, size=n))
 
-    return radius * radian_angles_to_vector(theta, phi)
+    return radius.reshape((len(radius), 1)) * radian_angles_to_vector(theta, phi)
 
 
 def radian_angles_to_vector(el: np.float64 | NDArray, az: np.float64 | NDArray) -> NDArray:

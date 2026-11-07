@@ -12,7 +12,7 @@ from scipy.constants import speed_of_light as c
 from constants import AugmentedDataset, MAX_WORKERS, PI, RNG
 from density_estimator import PCMQuerier
 import particle_attribute_querier as PAQ
-from power_processor import PowerProcessor, PowerProcessParams
+from power_processor import PowerProcessor, PowerProcessParams, PowerProcessorParams
 from shared_memory import PerceptResShm, SharedMemoryMeta
 from lidar import LiDARParams
 import ray_info as ray_info_instance
@@ -67,13 +67,17 @@ def list_sorted_pcds(pcd_dir: Path) -> List[Path]:
 
 def preset(scene_name: str, ray_output_dir: Path) -> ProcessParams:
     lidar_params = LiDARParams.get(scene_name)
+    intervals_per_meter = 10
     PAQ.set_params(scene_name, lidar_params, use_expected=False)
+    PowerProcessor.set_params(PowerProcessorParams(intervals_per_meter=intervals_per_meter,
+                                                   tau_h_ns=lidar_params.tau_h,
+                                                   threshold=1.0))
     ray_info_instance.set_stem('ray')
     ray_info_instance.set_output_dir(ray_output_dir)
     params = ProcessParams(scene_name=scene_name,
                            lidar_params=lidar_params,
                            beta_0=1 * 10 ** -6 / PI,
-                           intervals_per_meter=10,
+                           intervals_per_meter=intervals_per_meter,
                            sigma_max=50)
     return params
 

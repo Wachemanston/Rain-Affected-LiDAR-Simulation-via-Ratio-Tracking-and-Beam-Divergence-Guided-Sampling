@@ -244,7 +244,7 @@ def is_lidar_no_resp_perception(d_orig: float, max_range: float, i_orig: float) 
 
 def process_single_beam(j, rs_params: RaySimParams, rsc_params: RaySimCommonParams) -> None:
     d_orig, i_adjusted, i_orig, max_intensity, ray_idx, unit_dir, pp_params = rs_params
-    beta_0, get_occlusion_func, i, intervals_per_meter, R, shm_metas, tau_h = rsc_params
+    beta_0, get_occlusion_func, i, intervals_per_meter, max_range, R, shm_metas, tau_h = rsc_params
     i = np.copy(i)
     R = np.copy(R)
 

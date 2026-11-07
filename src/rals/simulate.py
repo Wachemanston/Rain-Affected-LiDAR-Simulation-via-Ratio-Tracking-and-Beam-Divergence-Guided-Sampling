@@ -2,6 +2,7 @@ import argparse
 from concurrent.futures import as_completed, ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
+import traceback
 from typing import Callable, List, Tuple, NamedTuple
 
 import numpy as np
@@ -167,8 +168,8 @@ def process_pcd(pcd_path: Path, percept_res_shm: PerceptResShm, params: ProcessP
         for future in as_completed(future_to_idx):
             try:
                 future.result()
-            except Exception as e:
-                print(f'\033[91m {e}\033[00m')
+            except Exception:
+                print(f'\033[91m {traceback.format_exc()}\033[00m')
                 exit(0)
 
     points[:, 0:4] = percept_res_shm.percept_copy

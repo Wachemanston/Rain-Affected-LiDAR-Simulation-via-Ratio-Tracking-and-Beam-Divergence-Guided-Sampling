@@ -36,3 +36,8 @@ clear_weather_simulation(scene_meta,
 print('[3] Apply medium effect')
 params = preset(example_scene_name, Path(example_final_output_dir))
 process_pcds(Path(example_seq_output_dir) / example_scene_name, Path(example_final_output_dir), Path(example_particle_dir), params)
+
+# print('[4] Expected alpha & beta computation example')
+# from medium import Rain
+# from lidar import Ouster0_128x1024
+# print(Rain(100).calculate_expected_mie_coefficients(Ouster0_128x1024().wavelength_nm))

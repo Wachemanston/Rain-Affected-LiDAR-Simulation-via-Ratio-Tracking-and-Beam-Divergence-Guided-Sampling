@@ -1,5 +1,6 @@
 from enum import Enum
 import json
+import multiprocessing
 from pathlib import Path
 from typing import Any, Dict, List, NamedTuple, Tuple
 
@@ -7,7 +8,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 
-MAX_WORKERS = 24
+MAX_WORKERS = min(24, multiprocessing.cpu_count())
 PI = np.pi
 RNG = np.random.default_rng()
 

@@ -180,8 +180,9 @@ def process_pcd(pcd_path: Path, percept_res_shm: PerceptResShm, params: ProcessP
                 exit(0)
 
     points[:, 0:4] = percept_res_shm.percept_copy
-    print_type_summary(percept_res_shm.type_copy)
-    return PointCloud.from_points(points, fields=AugmentedDataset.fields, types=AugmentedDataset.types)
+    mask = points[:, 3] >= lidar_params.intensity_threshold
+    print_type_summary(percept_res_shm.type_copy[mask])
+    return PointCloud.from_points(points[mask], fields=AugmentedDataset.fields, types=AugmentedDataset.types)
 
 
 def get_occlusion(d_orig: float, unit_dir: NDArray, sigma_max: float, beam_divergence: float, exporter_func: Callable):

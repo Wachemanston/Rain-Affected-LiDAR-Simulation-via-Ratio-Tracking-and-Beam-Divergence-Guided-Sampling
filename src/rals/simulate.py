@@ -225,7 +225,7 @@ def ratio_tracking(unit_dir: NDArray, sample_dist: NDArray, sigma_max: float, be
     prob = monte_carlo_estimate_prob(unit_dir=unit_dir, sample_dist=sample_dist, h=h, sample_size=1)
 
     pcms = prob / (h ** 3 * PI * 4/3)
-    expected_sigma_ext, expected_sigma_back = PAQ.query_coefficients(sample_pos)
+    expected_sigma_ext, expected_sigma_back = PAQ.query_coefficients(sample_pos, N=np.round(pcms).astype(int))
 
     alphas = expected_sigma_ext * pcms
     betas = expected_sigma_back * pcms

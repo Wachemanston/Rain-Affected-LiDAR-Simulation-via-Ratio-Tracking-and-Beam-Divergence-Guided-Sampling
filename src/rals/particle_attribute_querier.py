@@ -83,7 +83,7 @@ def __get_expected_mie_coefficients(medium: MediumType, radii_mum: NDArray = Non
     return medium.expected_q_ext, medium.expected_q_back
 
 
-def __sample_expected_mie_coefficients(medium: MediumType, N: int) -> tuple:
+def __sample_expected_mie_coefficients(medium: MediumType, N: NDArray) -> tuple:
     return medium.expected_q_ext, medium.expected_q_back
 
 
@@ -91,9 +91,25 @@ def __get_mie_coefficients(medium: MediumType, radii_mum: NDArray) -> tuple:
     return medium.mie_efficiencies(radii_mum, __lidar_params.wavelength_nm)
 
 
-def __sample_mie_coefficients(medium: MediumType, N: int) -> tuple:
-    radii_mum = medium.sample_radii_mum(N)
-    return __get_mie_coefficients(medium, radii_mum)
+def __sample_mie_coefficients(medium: MediumType, N: NDArray) -> tuple:
+    q_ext, q_back = np.zeros(len(N)), np.zeros(len(N))
+    valid_mask = N > 0
+    valid_N = N[valid_mask]
+
+    if len(valid_N) == 0:
+        return q_ext, q_back
+
+    total_samples = int(np.sum(valid_N))
+
+    all_radii_mum = medium.sample_radii_mum(total_samples)
+    all_exts, all_backs = __get_mie_coefficients(medium, all_radii_mum)
+
+    split_indices = np.insert(np.cumsum(valid_N)[:-1], 0, 0)
+
+    q_ext[valid_mask] = np.add.reduceat(all_exts, split_indices) / valid_N
+    q_back[valid_mask] = np.add.reduceat(all_backs, split_indices) / valid_N
+
+    return q_ext, q_back
 
 
 def __iter_mask_and_medium(pos: NDArray) -> NDArray:
@@ -103,13 +119,15 @@ def __iter_mask_and_medium(pos: NDArray) -> NDArray:
             yield mask, medium
 
 
-def query_coefficients(pos: NDArray) -> (NDArray, NDArray):
+def query_coefficients(pos: NDArray, N: NDArray) -> (NDArray, NDArray):
     assert pos.ndim == 2 and pos.shape[1] == 3, pos.shape
+    assert N.ndim == 1, N.shape
+    assert len(pos) == len(N), (len(pos), len(N))
 
     sigma_ext, sigma_back = np.zeros(len(pos)), np.zeros(len(pos))
 
     for mask, medium in __iter_mask_and_medium(pos):
-        sigma_ext[mask], sigma_back[mask] = __sample_func(medium, N=int(np.sum(mask)))
+        sigma_ext[mask], sigma_back[mask] = __sample_func(medium, N=N[mask])
 
     return sigma_ext, sigma_back
 

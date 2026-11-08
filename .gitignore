@@ -2,6 +2,7 @@
 .idea/
 
 # output
+example/*.pcd
 example/output/
 example/pcd_dir/
 config/*_obj_label.json
